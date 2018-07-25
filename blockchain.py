@@ -35,10 +35,12 @@ def add_transaction(recipient, sender = owner, amount=1.0):
 def mine_block():
     """ Mining a block i.e., completing an open transactions """
     last_block = blockchain[-1]
-    hashed_block = ''
-    for key in last_block:
-        value = last_block[key]
-        hashed_block = hashed_block + str(value)
+    # List Comprehensions
+    hashed_block = '-'.join([str(last_block[key]) for key in last_block])
+    
+    #  for key in last_block:
+    #     value = last_block[key]
+    #     hashed_block = hashed_block + str(value)
 
     print(hashed_block)
     block = {
@@ -52,7 +54,7 @@ def mine_block():
 def get_transaction_value():
     """ Returns the input of the user (a new transaction amount) as a float. """
     # Get the user input, transform it from a string to a float and store it in user_input
-    tx_recipient = input('Enter the recipient of the transaction:')
+    tx_recipient = input('Enter the recipient of the transaction: ')
     tx_amount = float(input('Your transaction amount please: '))
     return (tx_recipient, tx_amount)    # returning a tuple
 
@@ -141,3 +143,11 @@ else:
 
 
 print('Done!')
+
+# Converting an list into dictionary
+l = [('age', 29), ('weight', 72), ('height', 178)]
+d = {key: value for (key,value) in l} 
+
+# Combining List Comprehensions & if
+sl = [1,2,3,4]
+dl = [el * 2 for el in sl if el % 2 ==0]

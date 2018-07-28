@@ -80,15 +80,17 @@ def mine_block():
         'recipient' : owner,
         'amount' : MINING_REWARD
     }
-    open_transactions.append(reward_transaction)
+    # copied_transactions = open_transactions # this will be copied as reference not by value(they point at same memory locations) 
+    copied_transactions = open_transactions[:] # gives Shallow(reference of nested data ) copies 
+    copied_transactions.append(reward_transaction)
     block = {
         'previous_hash': hashed_block, 
         'index': len(blockchain),
-        'transactions': open_transactions
+        'transactions': copied_transactions
     }
     blockchain.append(block)
     return True
-
+ 
  
 def get_transaction_value():
     """ Returns the input of the user (a new transaction amount) as a float. """

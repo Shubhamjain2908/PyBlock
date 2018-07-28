@@ -1,29 +1,50 @@
-# Initializing our (empty) blockchain list
+# The reward we give to miners (for creating a new block)
 MINING_REWARD = 10.0
 
+# Our starting block for the blockchain
 genesis_block = {
         'previous_hash': '', 
         'index': 0,
         'transactions': []
     }
+# Initializing our (empty) blockchain list
 blockchain = [genesis_block]
+# Unhandled transactions
 open_transactions = []
+# We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
 owner = 'Shubham'
+# Registered participants: Ourself + other people sending/ receiving coins
 participants = {'Shubham'}#set()
 
 def hash_block(block):
-    """ Hashing the block """
+    """Hashes a block and returns a string representation of it.
+    
+    Arguments:
+        :block: The block that should be hashed.
+    """
     return '-'.join([str(block[key]) for key in block])
 
 
 def get_balance(participant):
+    """Calculate and return the balance for a participant.
+
+    Arguments:
+        :participant: The person for whom to calculate the balance.
+    """
+    # Fetch a list of all sent coin amounts for the given person (empty lists are returned if the person was NOT the sender)
+    # This fetches sent amounts of transactions that were already included in blocks of the blockchain
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
+    # Fetch a list of all sent coin amounts for the given person (empty lists are returned if the person was NOT the sender)
+    # This fetches sent amounts of open transactions (to avoid double spending)
     open_tx_sender = [tx['amount'] for tx in open_transactions if tx['sender'] == participant]
     tx_sender.append(open_tx_sender)
     amount_sent = 0
+    # Calculate the total amount of coins sent
     for tx in tx_sender:
         if len(tx) > 0:
             amount_sent += tx[0]
+    # This fetches received coin amounts of transactions that were already included in blocks of the blockchain
+    # We ignore open transactions here because you shouldn't be able to spend coins before the transaction was confirmed + included in a block
     tx_recipient = [[tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant] for block in blockchain]
     amount_recieved = 0
     for tx in tx_recipient:
@@ -40,6 +61,11 @@ def get_last_blockchain_value():
 
 
 def verify_transaction(transaction):
+    """Verify a transaction by checking whether the sender has sufficient coins.
+
+    Arguments:
+        :transaction: The transaction that should be verified.
+    """
     sender_balance = get_balance(transaction['sender'])
     return sender_balance >= transaction['amount']
     
@@ -75,11 +101,14 @@ def mine_block():
     last_block = blockchain[-1]
     # List Comprehensions
     hashed_block = hash_block(last_block)
+    # Miners should be rewarded, so let's create a reward transaction
     reward_transaction = {
         'sender' : 'MINING',
         'recipient' : owner,
         'amount' : MINING_REWARD
     }
+    # Copy transaction instead of manipulating the original open_transactions list
+    # This ensures that if for some reason the mining should fail, we don't have the reward transaction stored in the open transactions
     # copied_transactions = open_transactions # this will be copied as reference not by value(they point at same memory locations) 
     copied_transactions = open_transactions[:] # gives Shallow(reference of nested data ) copies 
     copied_transactions.append(reward_transaction)
@@ -127,6 +156,7 @@ def verify_chain():
 
 
 def verify_transactions():
+    """Verifies all open transactions.  """
     return all([verify_transaction(tx) for tx in open_transactions])
 
 

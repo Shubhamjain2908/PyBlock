@@ -24,16 +24,29 @@ participants = {'Shubham'}#set()
 
 
 def valid_proof(transactions, last_hash, proof):
+    """Validate a proof of work number and see if it solves the puzzle algorithm (two leading 0s)
+
+    Arguments:
+        :transactions: The transactions of the block for which the proof is created.
+        :last_hash: The previous block's hash which will be stored in the current block.
+        :proof: The proof number we're testing.
+    """
+    # Create a string with all the hash inputs
+    
     guess = (str(transactions) + str(last_hash) + str(proof)).encode()
+    # Hash the string
+    # IMPORTANT: This is NOT the same hash as will be stored in the previous_hash. It's a not a block's hash. It's only used for the proof-of-work algorithm.
     guess_hash = hash_string_256(guess)
     print(guess_hash)
     return guess_hash[0:2] == '00'
 
 
 def proof_of_work():
+    """Generate a proof of work for the open transactions, the hash of the previous block and a random number (which is guessed until it fits)."""
     last_block = blockchain[-1]
     last_hash = hash_block(last_block)
     proof = 0
+    # Try different PoW numbers and return the first valid one
     while not valid_proof(open_transactions, last_hash, proof):
         proof += 1
     return proof

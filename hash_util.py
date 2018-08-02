@@ -16,4 +16,3 @@ def hash_block(block):
         :block: The block that should be hashed.
     """
     return hash_string_256(json.dumps(block, sort_keys=True).encode())
-
